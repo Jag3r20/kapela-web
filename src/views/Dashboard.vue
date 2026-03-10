@@ -35,6 +35,12 @@
       </div>
     </div>
     
+    <div v-else-if="store.isLoading" class="empty-state">
+      <p>Načítavam...</p>
+    </div>
+    <div v-else-if="store.error" class="empty-state error-state">
+      <p>⚠️ Chyba: {{ store.error }}</p>
+    </div>
     <div v-else class="empty-state">
       <p>Zatím tu žádné písničky nejsou (nebo nevyhovují filtru).</p>
     </div>
@@ -63,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSongbookStore } from '../store/songbook'
 
@@ -92,9 +98,13 @@ const filteredSongs = computed(() => {
   return store.songs.filter(s => s.progress === currentFilter.value)
 })
 
-const handleAddSong = () => {
+onMounted(() => {
+  store.fetchSongs()
+})
+
+const handleAddSong = async () => {
   if (newSong.value.title && newSong.value.artist) {
-    store.addSong({ ...newSong.value })
+    await store.addSong({ ...newSong.value })
     showAddModal.value = false
     newSong.value = { title: '', artist: '' }
   }

@@ -101,7 +101,11 @@ const notesContent = ref('')
 const showSaved = ref(false)
 const showDeleteConfirm = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
+  // If navigating directly to this URL without going through Dashboard first
+  if (store.songs.length === 0) {
+    await store.fetchSongs()
+  }
   if (song.value) {
     notesContent.value = song.value.notes || ''
   }
@@ -130,8 +134,8 @@ const saveNotes = () => {
   }
 }
 
-const handleDeleteConfirm = () => {
-  store.deleteSong(Number(songId.value))
+const handleDeleteConfirm = async () => {
+  await store.deleteSong(Number(songId.value))
   router.push('/')
 }
 </script>
